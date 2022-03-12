@@ -295,8 +295,7 @@ def StartSqli(url, true_str, cookie):
 
 
 if __name__ == '__main__':
-    cookie = {'EAD_JSESSIONID': '1216591E8D9C5094F2881B640DC2DD4A', 'account': 'anquan_saomiao', 'status': '1',
-              '_security': 'b6180d3a2e298f5a6082d55035f2d43a'}
+    cookie = {'JSESSIONID': '12162483r4834t4F2881B1234A'}
 
     #eg: python sql_injection.py -u "http://127.0.0.1/?id=1" -f "Hello"
     parser = optparse.OptionParser('usage: python %prog -u url \n\n' 'Example: python %prog -u http://127.0.0.1?id=1\n')
